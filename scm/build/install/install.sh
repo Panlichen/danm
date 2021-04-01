@@ -109,7 +109,7 @@ echo ; echo "Creating WebHook certificate..."
 echo ; echo "Rendering configuration templates"
 
 SECRET_NAME="$(kubectl get --namespace kube-system -o jsonpath='{.secrets[0].name}' serviceaccounts danm)"
-export SERVICEACCOUNT_TOKEN="$(kubectl get --namespace kube-system secrets ${SECRET_NAME} -o jsonpath='{.data.token}')"
+export SERVICEACCOUNT_TOKEN="$(kubectl get --namespace kube-system secrets ${SECRET_NAME} -o jsonpath='{.data.token}' | base64 -d)"
 
 mkdir -p /config-out/resources
 # It seems confd really does not want to render templates with absolute paths - so we
