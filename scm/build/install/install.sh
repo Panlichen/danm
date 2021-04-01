@@ -24,6 +24,7 @@ export CNI_NAMING_SCHEME=$(cat /config/cni_naming_scheme)
 export DEFAULT_CNI_TYPE=$(cat /config/default_cni_type)
 export DEFAULT_CNI_NETWORK_ID=$(cat /config/default_cni_network_id)
 export IMAGE_PULL_POLICY=$(cat /config/image_pull_policy)
+export KUBERNETES_HOST_PORT=$(cat /config/kubernetes_host_port)
 
 if [ -f /config/image_registry_prefix ]
 then
@@ -70,8 +71,15 @@ then
   export KUBERNETES_CA_CERTIFICATE="$(cat /config/api_ca_cert)"
 else
   echo ; echo "Reading Kubernetes API server certificate"
-  export KUBERNETES_CA_CERTIFICATE="$(openssl s_client -connect ${KUBERNETES_HOST_PORT} 2>&1 </dev/null | sed -ne '/BEGIN CERT/,/END CERT/p')"
+  export KUBERNETES_CA_CERTIFICATE_RETRIEVE="$(openssl s_client -connect ${KUBERNETES_HOST_PORT} 2>&1 </dev/null | sed -ne '/BEGIN CERT/,/END CERT/p')"
 fi
+
+echo; echo "KUBERNETES_HOST_PORT is $KUBERNETES_HOST_PORT"
+
+echo; echo "configMap tells cert is $KUBERNETES_CA_CERTIFICATE"
+echo "after code, get `echo $KUBERNETES_CA_CERTIFICATE | base64`"
+echo; echo "retrieve cert is $KUBERNETES_CA_CERTIFICATE_RETRIEVE" 
+echo "after code, get `echo $KUBERNETES_CA_CERTIFICATE_RETRIEVE | base64`"
 
 #
 # Apply API extension CRDs
@@ -101,8 +109,7 @@ echo ; echo "Creating WebHook certificate..."
 echo ; echo "Rendering configuration templates"
 
 SECRET_NAME="$(kubectl get --namespace kube-system -o jsonpath='{.secrets[0].name}' serviceaccounts danm)"
-export SERVICEACCOUNT_TOKEN="$(kubectl get --namespace kube-system secrets ${SECRET_NAME} -o jsonpath='{.data.token}' | base64 -d)"
-export KUBERNETES_HOST_PORT="$(echo ${KUBERNETES_PORT} | cut -f 3 -d '/')"
+export SERVICEACCOUNT_TOKEN="$(kubectl get --namespace kube-system secrets ${SECRET_NAME} -o jsonpath='{.data.token}')"
 
 mkdir -p /config-out/resources
 # It seems confd really does not want to render templates with absolute paths - so we
