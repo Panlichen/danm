@@ -23,7 +23,7 @@ stringData:
     current-context: default
     clusters:
       - cluster:
-          certificate-authority-data: {{ base64Encode (getenv "KUBERNETES_CA_CERTIFICATE") }}
+          certificate-authority-data: {{ getenv "KUBERNETES_CA_CERTIFICATE" }}
           server: https://{{ getenv "KUBERNETES_HOST_PORT" }}
         name: kubernetes
     contexts:
