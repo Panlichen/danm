@@ -2,28 +2,62 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: sriov-pod
-  namespace: example-sriov
+  # namespace: example-sriov
   labels:
     env: test
   annotations:
     danm.k8s.io/interfaces: |
       [
         {"network":"management", "ip":"dynamic"},
-        {"network":"sriov-a", "ip":"none"},
-        {"network":"sriov-b", "ip":"none"}
+        {"network":"sriov-a", "ip":"dynamic"}
       ]
 spec:
   containers:
-  - name: sriov-pod
-    image: busybox:latest
+  - image: mellanox/rping-test
+    name: mofed-test-ctr
     imagePullPolicy: IfNotPresent
-    args:
-      - sleep
-      - "1000"
+    command:
+    - sh
+    - -c
+    - |
+      ls -l /dev/infiniband /sys/class/net
+      sleep 1000000
     resources:
       requests:
-        nokia.k8s.io/sriov_ens1f0: '1'
-        nokia.k8s.io/sriov_ens1f1: '1'
+        mellanox.com/mlx5_vf: '1'
       limits:
-        nokia.k8s.io/sriov_ens1f0: '1'
-        nokia.k8s.io/sriov_ens1f1: '1'
+        mellanox.com/mlx5_vf: '1'
+  nodeName: node-0
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sriov-pod1
+  # namespace: example-sriov
+  labels:
+    env: test
+  annotations:
+    danm.k8s.io/interfaces: |
+      [
+        {"network":"management", "ip":"dynamic"},
+        {"network":"sriov-a", "ip":"dynamic"}
+      ]
+spec:
+  containers:
+  - image: mellanox/rping-test
+    name: mofed-test-ctr
+    imagePullPolicy: IfNotPresent
+    command:
+    - sh
+    - -c
+    - |
+      ls -l /dev/infiniband /sys/class/net
+      sleep 1000000
+    resources:
+      requests:
+        mellanox.com/mlx5_vf: '1'
+      limits:
+        mellanox.com/mlx5_vf: '1'
+  nodeName: node-1

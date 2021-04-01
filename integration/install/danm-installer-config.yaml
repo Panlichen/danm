@@ -9,8 +9,7 @@ data:
   # DANM deployment mode. This MUST be either "lightweight" or "production". Please see the DANM user guide for
   # details on the two modes.
   #
-  deploy_mode: production
-
+  deploy_mode: lightweight
   #
   # CNI configuration directory. Typically, this is "/etc/cni/net.d". This is the directory where your
   # current (bootstrap) CNI configuration is located, too.
@@ -25,6 +24,8 @@ data:
   #
   cni_naming_scheme: ""
 
+  kubernetes_host_port: 192.168.1.1:6443
+
   #
   # [OPTIONAL] Kubernetes API Root CA certificate. If left blank, the installer will obtain the
   # API server certificate from the Kubernetes API. Note, however, that placing a certificate here
@@ -35,15 +36,11 @@ data:
   #
   # kubectl config view \
   #   --flatten \
-  #   -o jsonpath='{.clusters[0].cluster.certificate-authority-data} \
+  #   -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' \
   #   | base64 -d
   #
-#  api_ca_cert: |
-#    -----BEGIN CERTIFICATE-----
-#    VGhpcyBJcyBBIFBsYWNlaG9sZGVyIFN0cmluZy4uLiBUaGlzIElzIEEgUGxhY2Vo
-#    ...
-#    VGhpcyBpcyB0aGUgZW5kIG9mIGEgcGxhY2Vob2xkZXIgc3RyaW5nCg==
-#    -----END CERTIFICATE-----
+  api_ca_cert: |
+    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EUXdNVEExTVRBMU1sb1hEVE14TURNek1EQTFNVEExTWxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTWszClp0UHRUbzhlUHFhNFJhdDBTbXpPYmx0dUhtdC9FcVlaYWQ1YlppODFQRFYyQnh2V1hJSi8zdXdKWE9USGRkaGoKMWJHQ1J6YmxwZjZ1K0tBSXZFdjl5c2Y4V2JTbGt3L3hHVGY2ckFPcUFkNnJ3V3g5a3NERTFyVE01L0hmWllHaQpDYjYyRU5tYzlJMkphWCtIYVpMaDQ1WDRiYUlxWTUrQmgvTHRkVTd2ekEvSXU5dHNmTWhxblU1V0ZsTC9JS1EwCm9JU2NLTitQWmROdXJyRWNnZTRubU5IbDQzNFQ3a1BiN0N0Wmdkb3Nna3B6TzdhdWRIenJDRHpPbnk0MnlIV2gKbHNmVHRQeFZ6ODZjTExvQWdKNTRrNVlYMFZaeUE4Q0lHdFJ3U0xRakFZQkpyZW13Tys5c3RybFN5VHR4ZEZrdwoyWDJ2cDlLWjMyU3U3STduRTZNQ0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFEY2Rmajc4b2l3clhPTUJkeTB6RWJpNGt0K0cKMldBdVlpQWNNUk9pQ1RlQi96TngvQkJubXljL01HQkxkYS9SUC9zYVdaT1lWK3B5MER1UHlORTdKWDFBV0J5dAp6aGdKc0Z6Tk1LZzRVeGZXRWpCOGN5NkVxbmhaOCtWL2ZieG5FWVdLZDNuWGFaNHh2aXY4KzlOZ2pmeUZPTU5ECm9qajluNTl2TEljZU80U0ZvbndqWEN5dU9tRWZOdXJrTHV4REp3VDdlWW5hdGluVFRYb1lMTG5ETmpiZ0pDdjMKY01VRHdxMnJObjN0ZnBBNVM2cDVmVUhMc0xIQTJJVElEd2dxdFB3VVRhUi9hWHFRNFlVNTRJRUErbU5PVHF5Kwp2dldaS3pYZHFFSjV2TlVIQWg3SkVlb29MZFhVWlo1UmRKbUxZQ0xWbnlGNWUwamplcU5ReDRPY1JOYz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
 
   #
   # This is the type of the CNI plugin used for your default (bootstrap) network.
@@ -59,7 +56,7 @@ data:
   # a file with this name will be created if the ${default_cni_config_data} parameter
   # is also provided (below).
   #
-  default_cni_network_id: 10-flannel
+  default_cni_network_id: flannel
 
   #
   # [OPTIONAL] Bootstrap CNI configuration data. Typically, your bootstrap CNI plugin
@@ -69,15 +66,15 @@ data:
   # contents of this variable are going to be written to a file named
   # "${default_cni_network_id}.conf" as above.
   #
-#  default_cni_config_data: |
-#    {
-#      "cniVersion": "0.3.1",
-#      "type": "flannel",
-#      "delegate": {
-#        "hairpinMode": true,
-#        "isDefaultGateway": true
-#      }
-#    }
+  default_cni_config_data: |
+    {
+      "cniVersion": "0.3.1",
+      "type": "flannel",
+      "delegate": {
+        "hairpinMode": true,
+        "isDefaultGateway": true
+      }
+    }
 
   #
   # [OPTIONAL] A prefix (such as a registry name) to be included in each container image.
@@ -89,7 +86,7 @@ data:
   # "my-registry.example.com/namespace/". The same prefix will be applied for
   # all images.
   #
-#  image_registry_prefix: my-registry.example.com/namespace/
+  image_registry_prefix: poanpan/nokia-
 
   #
   # [OPTIONAL] Image tag for each image. Defaults to "latest" if none specified.

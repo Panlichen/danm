@@ -84,6 +84,16 @@ rules:
   - watch
   - create
   - update
+  - patch
+- apiGroups:
+  - k8s.cni.cncf.io
+  resources:
+  - network-attachment-definitions
+  verbs:
+  - get
+  - list
+  - watch
+  - update
 - apiGroups:
   - "certificates.k8s.io"
   resources:

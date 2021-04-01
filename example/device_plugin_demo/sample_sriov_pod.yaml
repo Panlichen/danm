@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-sriov-pod
+  labels:
+    env: test
+  annotations:
+    danm.k8s.io/interfaces: |
+      [
+        {"network":"sriov-a", "ip":"dynamic"}
+      ]
+spec:
+  containers:
+  - name: sriov-pod
+    image: busybox:latest
+    imagePullPolicy: IfNotPresent
+    args:
+      - sleep
+      - "1000"
+    resources:
+    resources:
+      requests:
+        mellanox.com/mlx5_vf: '1'
+      limits:
+        mellanox.com/mlx5_vf: '1'
+  nodeName: node-0
